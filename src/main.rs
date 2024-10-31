@@ -1,9 +1,16 @@
 use serde::*;
 use tokio::fs;
 
+    #[derive(Serialize, Deserialize)]
+    pub struct Test {
+        pub content: String,
+    }
+
+
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    demo_panic().await?;
+   // demo_panic().await?;
+   works().await?;
     Ok(())
 }
 
@@ -28,11 +35,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 pub async fn demo_panic() -> Result<(), Box<dyn std::error::Error>> {
     use serde_yml::Value;
 
-    #[derive(Serialize, Deserialize)]
-    pub struct Test {
-        pub content: String,
-    }
-
     let t = Test {
         // NOTE: the amount of spaces at the end matters
         content: "\n    a {\n        ".into(),
@@ -51,5 +53,13 @@ pub async fn demo_panic() -> Result<(), Box<dyn std::error::Error>> {
 
     // PANICS // 
     let _: Result<Value, _> = serde_yml::from_slice(&bad_file);
+    Ok(())
+}
+
+pub async fn works() -> Result<(), Box<dyn std::error::Error>> {
+    let working_file = fs::read("./same-string-as-raw.yaml").await?;
+    let working_file_2 = fs::read("./same-string-as-raw-2.yaml").await?;
+    let _: Result<Test, _> = serde_yml::from_slice(&working_file);
+    let _: Result<Test, _> = serde_yml::from_slice(&working_file_2);
     Ok(())
 }
